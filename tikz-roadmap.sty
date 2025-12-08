@@ -1,0 +1,260 @@
+%% tikz-roadmap.sty
+%% A LaTeX package for creating team roadmaps with TikZ
+%% Author: Gaetan Bahl
+%% License: MIT
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{tikz-roadmap}[2025/12/08 v1.0 Team Roadmap Package]
+
+% Required packages
+\RequirePackage{tikz}
+\RequirePackage{xcolor}
+\RequirePackage{calc}
+\RequirePackage{pgfkeys}
+\RequirePackage{etoolbox}
+
+\usetikzlibrary{positioning,calc,shapes.geometric,shadows}
+
+% Define color scheme
+\definecolor{roadmapblue}{RGB}{52,152,219}
+\definecolor{roadmapgreen}{RGB}{46,204,113}
+\definecolor{roadmaporange}{RGB}{230,126,34}
+\definecolor{roadmappurple}{RGB}{155,89,182}
+\definecolor{roadmapred}{RGB}{231,76,60}
+\definecolor{roadmapteal}{RGB}{26,188,156}
+\definecolor{roadmapgray}{RGB}{149,165,166}
+\definecolor{roadmapdarkgray}{RGB}{52,73,94}
+
+% Package options and defaults
+\newlength{\roadmap@width}
+\newlength{\roadmap@rowheight}
+\newlength{\roadmap@timelineheight}
+\newcounter{roadmap@rows}
+\newcounter{roadmap@cols}
+\newcounter{roadmap@currentrow}
+\newcounter{roadmap@currenttask}
+
+\setlength{\roadmap@width}{15cm}
+\setlength{\roadmap@rowheight}{1.2cm}
+\setlength{\roadmap@timelineheight}{1cm}
+\setcounter{roadmap@cols}{12}
+
+% Store task data
+\newtoks\roadmap@tasks
+\roadmap@tasks={}
+
+% pgfkeys for configuration
+\pgfkeys{
+  /roadmap/.is family, /roadmap,
+  width/.code={\setlength{\roadmap@width}{#1}},
+  row height/.code={\setlength{\roadmap@rowheight}{#1}},
+  timeline height/.code={\setlength{\roadmap@timelineheight}{#1}},
+  columns/.code={\setcounter{roadmap@cols}{#1}},
+  default/.style={
+    width=15cm,
+    row height=1.2cm,
+    timeline height=1cm,
+    columns=12
+  }
+}
+
+% Main environment for roadmap
+\newenvironment{roadmap}[1][]{%
+  \pgfkeys{/roadmap, default, #1}%
+  \setcounter{roadmap@currentrow}{0}%
+  \setcounter{roadmap@currenttask}{0}%
+  \roadmap@tasks={}%
+  \def\roadmap@teamlabels{}%
+  \def\roadmap@timelinelabels{}%
+}{%
+  \roadmap@draw%
+}
+
+% Add a team/project row
+\newcommand{\roadmaprow}[1]{%
+  \stepcounter{roadmap@currentrow}%
+  \expandafter\gdef\csname roadmap@label@\the\value{roadmap@currentrow}\endcsname{#1}%
+  \expandafter\gdef\csname roadmap@lanes@\the\value{roadmap@currentrow}\endcsname{1}% Default: single lane
+}
+
+% Add a multi-lane team/project row
+% Usage: \multiroadmaprow{lanes}{label}
+\newcommand{\multiroadmaprow}[2]{%
+  \stepcounter{roadmap@currentrow}%
+  \expandafter\gdef\csname roadmap@label@\the\value{roadmap@currentrow}\endcsname{#2}%
+  \expandafter\gdef\csname roadmap@lanes@\the\value{roadmap@currentrow}\endcsname{#1}% Store number of lanes
+}
+
+% Add a task to the roadmap
+% Usage: \roadmaptask[options]{row}{start}{duration}{title}
+\newcommand{\roadmaptask}[5][]{%
+  \stepcounter{roadmap@currenttask}%
+  \expandafter\gdef\csname roadmap@task@\the\value{roadmap@currenttask}@row\endcsname{#2}%
+  \expandafter\gdef\csname roadmap@task@\the\value{roadmap@currenttask}@start\endcsname{#3}%
+  \expandafter\gdef\csname roadmap@task@\the\value{roadmap@currenttask}@duration\endcsname{#4}%
+  \expandafter\gdef\csname roadmap@task@\the\value{roadmap@currenttask}@title\endcsname{#5}%
+  \expandafter\gdef\csname roadmap@task@\the\value{roadmap@currenttask}@options\endcsname{#1}%
+  \expandafter\gdef\csname roadmap@task@\the\value{roadmap@currenttask}@lane\endcsname{0}% Default: lane 0
+}
+
+% Add a task to a multi-lane row
+% Usage: \multiroadmaptask[options]{row}{lane}{start}{duration}{title}
+\newcommand{\multiroadmaptask}[6][]{%
+  \stepcounter{roadmap@currenttask}%
+  \expandafter\gdef\csname roadmap@task@\the\value{roadmap@currenttask}@row\endcsname{#2}%
+  \expandafter\gdef\csname roadmap@task@\the\value{roadmap@currenttask}@start\endcsname{#4}%
+  \expandafter\gdef\csname roadmap@task@\the\value{roadmap@currenttask}@duration\endcsname{#5}%
+  \expandafter\gdef\csname roadmap@task@\the\value{roadmap@currenttask}@title\endcsname{#6}%
+  \expandafter\gdef\csname roadmap@task@\the\value{roadmap@currenttask}@options\endcsname{#1}%
+  \expandafter\gdef\csname roadmap@task@\the\value{roadmap@currenttask}@lane\endcsname{#3}% Store lane number
+}
+
+% Set timeline labels
+% Usage: \roadmaptimeline{Jan,Feb,Mar,...}
+\newcommand{\roadmaptimeline}[1]{%
+  \gdef\roadmap@timelinelabels{#1}%
+}
+
+% Internal drawing command
+\newcommand{\roadmap@draw}{%
+  \begin{tikzpicture}[
+    every node/.style={font=\small},
+    task/.style={
+      rectangle,
+      rounded corners=3pt,
+      minimum height=0.8cm,
+      text=white,
+      font=\small\bfseries,
+      drop shadow={opacity=0.3,shadow xshift=1pt,shadow yshift=-1pt},
+      align=center
+    }
+  ]
+
+  % Convert lengths to points for calculations
+  \pgfmathsetlengthmacro{\roadmapwidthpt}{\roadmap@width}
+  \pgfmathsetlengthmacro{\roadmaprowheightpt}{\roadmap@rowheight}
+  \pgfmathsetlengthmacro{\roadmaptimelineheightpt}{\roadmap@timelineheight}
+
+  % Calculate dimensions (now in pts)
+  \pgfmathsetmacro{\labelwidth}{0.15*\roadmapwidthpt}
+  \pgfmathsetmacro{\chartwidth}{0.85*\roadmapwidthpt}
+  \pgfmathsetmacro{\colwidthchart}{\chartwidth/\value{roadmap@cols}}
+
+  % Calculate and store cumulative heights for each row
+  \newdimen\roadmap@cumheight
+  \roadmap@cumheight=0pt
+  \foreach \row in {1,...,\value{roadmap@currentrow}} {
+    % Store cumulative height at start of this row
+    \expandafter\xdef\csname roadmap@rowcumheight@\row\endcsname{\the\roadmap@cumheight}
+
+    % Add this row's height to cumulative total
+    \pgfmathsetmacro{\numlanes}{\csname roadmap@lanes@\row\endcsname}
+    \pgfmathsetmacro{\thisrowheight}{\numlanes*\roadmaprowheightpt}
+    \pgfmathsetlengthmacro{\rowheightdim}{\thisrowheight pt}
+    \global\advance\roadmap@cumheight by \rowheightdim
+  }
+
+  % Store final total height
+  \pgfmathsetlengthmacro{\roadmapfinaltotalheight}{\the\roadmap@cumheight}
+  \pgfmathsetmacro{\totalheight}{\roadmapfinaltotalheight}
+
+  % Draw label area background (left column)
+  \fill[white] (0, 0) rectangle (\labelwidth pt, -\totalheight pt);
+  \draw[black!30] (\labelwidth pt, 0) -- (\labelwidth pt, -\totalheight pt);
+
+  % Draw grid background (chart area)
+  \fill[black!5] (\labelwidth pt, -\totalheight pt) rectangle (\roadmapwidthpt, 0);
+
+  % Draw vertical grid lines
+  \foreach \col in {0,...,\value{roadmap@cols}} {
+    \pgfmathsetmacro{\xpos}{\labelwidth + \col*\colwidthchart}
+    \draw[black!20, thin] (\xpos pt, 0) -- (\xpos pt, -\totalheight pt);
+  }
+
+  % Draw horizontal grid lines and row labels
+  \foreach \row in {1,...,\value{roadmap@currentrow}} {
+    % Get pre-calculated cumulative height for this row
+    \edef\rowcumheightstr{\csname roadmap@rowcumheight@\row\endcsname}
+
+    \pgfmathsetmacro{\numlanes}{\csname roadmap@lanes@\row\endcsname}
+    \pgfmathsetmacro{\rowheight}{\numlanes*\roadmaprowheightpt}
+
+    % Calculate positions based on stored cumulative height
+    \pgfmathsetmacro{\ytop}{-\rowcumheightstr}
+    \pgfmathsetmacro{\ybottom}{-\rowcumheightstr - \rowheight}
+    \pgfmathsetmacro{\ymiddle}{-\rowcumheightstr - \rowheight/2}
+
+    % Draw bottom horizontal line for this row
+    \draw[black!30] (0, \ybottom pt) -- (\roadmapwidthpt, \ybottom pt);
+
+    % Draw lane separators for multi-lane rows (lighter lines)
+    \pgfmathtruncatemacro{\numlanesfixed}{\numlanes}
+    \ifnum\numlanesfixed>1
+      \pgfmathtruncatemacro{\maxlane}{\numlanesfixed-1}
+      \foreach \lane in {1,...,\maxlane} {
+        \pgfmathsetmacro{\ylanesep}{-\rowcumheightstr - \lane*\roadmaprowheightpt}
+        \draw[black!15, thin, dashed] (\labelwidth pt, \ylanesep pt) -- (\roadmapwidthpt, \ylanesep pt);
+      }
+    \fi
+
+    % Row label - centered vertically in the entire row
+    \node[anchor=west, font=\small\bfseries, text=roadmapdarkgray, text width=\labelwidth pt-8pt]
+      at (4pt, \ymiddle pt) {\csname roadmap@label@\row\endcsname};
+  }
+
+  % Draw tasks
+  \foreach \tasknum in {1,...,\value{roadmap@currenttask}} {
+    \pgfmathsetmacro{\taskrow}{\csname roadmap@task@\tasknum @row\endcsname}
+    \pgfmathsetmacro{\tasklane}{\csname roadmap@task@\tasknum @lane\endcsname}
+    \pgfmathsetmacro{\taskstart}{\csname roadmap@task@\tasknum @start\endcsname}
+    \pgfmathsetmacro{\taskduration}{\csname roadmap@task@\tasknum @duration\endcsname}
+    \edef\tasktitle{\csname roadmap@task@\tasknum @title\endcsname}
+    \edef\taskoptions{\csname roadmap@task@\tasknum @options\endcsname}
+
+    % Get pre-calculated cumulative height for this row
+    \pgfmathtruncatemacro{\taskrowint}{\taskrow}
+    \edef\taskcumheightstr{\csname roadmap@rowcumheight@\taskrowint\endcsname}
+
+    % Calculate Y position: cumulative height + lane offset + half lane height
+    \pgfmathsetmacro{\ypos}{-\taskcumheightstr - \tasklane*\roadmaprowheightpt - 0.5*\roadmaprowheightpt}
+    \pgfmathsetmacro{\xstart}{\labelwidth + (\taskstart-1)*\colwidthchart}
+    \pgfmathsetmacro{\taskwidth}{\taskduration*\colwidthchart}
+
+    % Determine color based on options or use default colors
+    \def\taskcolor{roadmapblue}
+    \ifdefstring{\taskoptions}{green}{\def\taskcolor{roadmapgreen}}{}
+    \ifdefstring{\taskoptions}{orange}{\def\taskcolor{roadmaporange}}{}
+    \ifdefstring{\taskoptions}{purple}{\def\taskcolor{roadmappurple}}{}
+    \ifdefstring{\taskoptions}{red}{\def\taskcolor{roadmapred}}{}
+    \ifdefstring{\taskoptions}{teal}{\def\taskcolor{roadmapteal}}{}
+    \ifdefstring{\taskoptions}{gray}{\def\taskcolor{roadmapgray}}{}
+    \ifdefstring{\taskoptions}{blue}{\def\taskcolor{roadmapblue}}{}
+
+    % Draw task box
+    \node[task, fill=\taskcolor, minimum width=\taskwidth pt-4pt]
+      at (\xstart pt + \taskwidth pt/2, \ypos pt) {\tasktitle};
+  }
+
+  % Draw timeline at bottom (use globally stored total height)
+  \pgfmathsetmacro{\timeliney}{-\roadmapfinaltotalheight - 0.3*\roadmaptimelineheightpt}
+
+  % Timeline background
+  \fill[black!10] (\labelwidth pt, -\roadmapfinaltotalheight - \roadmaptimelineheightpt)
+    rectangle (\roadmapwidthpt, -\roadmapfinaltotalheight);
+
+  % Timeline labels
+  \foreach \col in {1,...,\value{roadmap@cols}} {
+    \pgfmathsetmacro{\xpos}{\labelwidth + (\col-0.5)*\colwidthchart}
+    \pgfmathsetmacro{\labelindex}{\col-1}
+
+    % Get the label for this column
+    \node[font=\small, text=roadmapdarkgray] at (\xpos pt, \timeliney pt) {
+      \pgfmathparse{{\roadmap@timelinelabels}[\labelindex]}
+      \pgfmathresult
+    };
+  }
+
+  \end{tikzpicture}
+}
+
+\endinput

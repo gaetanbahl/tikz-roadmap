@@ -1,0 +1,255 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage[margin=0.3in]{geometry}
+\usepackage{tikz-roadmap}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\begin{document}
+
+\section{Product Development Roadmap - Q1-Q4 2025}
+
+This example demonstrates a team roadmap with multiple projects across different teams.
+
+\begin{figure}[h!]
+\centering
+\begin{roadmap}[width=18cm, row height=1.5cm, columns=12]
+  % Define the teams/projects
+  \roadmaprow{Frontend Team}
+  \roadmaprow{Backend Team}
+  \roadmaprow{Mobile Team}
+  \roadmaprow{DevOps Team}
+  \roadmaprow{Design Team}
+
+  % Define timeline labels (12 months)
+  \roadmaptimeline{"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"}
+
+  % Add tasks for Frontend Team (row 1)
+  \roadmaptask[blue]{1}{1}{2}{UI Redesign}
+  \roadmaptask[green]{1}{3}{3}{Dashboard v2}
+  \roadmaptask[orange]{1}{6}{2}{Performance}
+  \roadmaptask[purple]{1}{8}{4}{New Features}
+
+  % Add tasks for Backend Team (row 2)
+  \roadmaptask[teal]{2}{1}{3}{API Gateway}
+  \roadmaptask[blue]{2}{4}{2}{DB Migration}
+  \roadmaptask[green]{2}{6}{4}{Microservices}
+  \roadmaptask[red]{2}{10}{3}{Security Audit}
+
+  % Add tasks for Mobile Team (row 3)
+  \roadmaptask[orange]{3}{2}{4}{iOS App v3.0}
+  \roadmaptask[purple]{3}{6}{3}{Android Parity}
+  \roadmaptask[blue]{3}{9}{3}{Offline Mode}
+
+  % Add tasks for DevOps Team (row 4)
+  \roadmaptask[gray]{4}{1}{2}{CI Setup}
+  \roadmaptask[teal]{4}{3}{3}{K8s Migration}
+  \roadmaptask[green]{4}{6}{2}{Monitoring}
+  \roadmaptask[blue]{4}{8}{4}{Auto-scaling}
+
+  % Add tasks for Design Team (row 5)
+  \roadmaptask[purple]{5}{1}{3}{Design System}
+  \roadmaptask[orange]{5}{4}{2}{User Research}
+  \roadmaptask[green]{5}{6}{3}{Mobile UX}
+  \roadmaptask[blue]{5}{9}{2}{Accessibility}
+\end{roadmap}
+\end{figure}
+
+\section{Smaller Example - Q1 Only}
+
+Here's a more focused roadmap for a single quarter:
+
+\begin{roadmap}[width=17cm, row height=1.3cm, columns=3]
+  \roadmaprow{Engineering}
+  \roadmaprow{Marketing}
+  \roadmaprow{Sales}
+
+  \roadmaptimeline{"January","February","March"}
+
+  \roadmaptask[blue]{1}{1}{1.5}{Sprint 1-2}
+  \roadmaptask[green]{1}{2.5}{0.5}{Release}
+
+  \roadmaptask[orange]{2}{1}{2}{Campaign}
+  \roadmaptask[purple]{2}{3}{1}{Analytics}
+
+  \roadmaptask[teal]{3}{1.5}{1}{Q1 Push}
+  \roadmaptask[red]{3}{2.5}{0.5}{Review}
+\end{roadmap}
+
+\section{Compact View}
+
+A more compact roadmap with smaller row heights:
+
+\begin{roadmap}[width=12cm, row height=0.9cm, columns=6]
+  \roadmaprow{Project Alpha}
+  \roadmaprow{Project Beta}
+  \roadmaprow{Project Gamma}
+
+  \roadmaptimeline{"W1","W2","W3","W4","W5","W6"}
+
+  \roadmaptask[blue]{1}{1}{2}{Phase 1}
+  \roadmaptask[green]{1}{3}{3}{Phase 2}
+
+  \roadmaptask[orange]{2}{2}{3}{Development}
+  \roadmaptask[red]{2}{5}{2}{Testing}
+
+  \roadmaptask[purple]{3}{1}{4}{Research}
+  \roadmaptask[teal]{3}{5}{2}{Deploy}
+\end{roadmap}
+
+\newpage
+
+\section{Multi-Lane Roadmap Example}
+
+This example demonstrates multi-lane rows for teams working on concurrent tasks. The Engineering Team has 3 parallel work streams, while Design and QA teams have single lanes.
+
+\begin{roadmap}[width=18cm, row height=1cm, columns=8]
+  \roadmaprow{Design Team}
+  \multiroadmaprow{3}{Engineering Team}
+  \roadmaprow{QA Team}
+
+  \roadmaptimeline{"Week 1","Week 2","Week 3","Week 4","Week 5","Week 6","Week 7","Week 8"}
+
+  % Design Team - single lane
+  \roadmaptask[purple]{1}{1}{3}{UI/UX Design}
+  \roadmaptask[purple]{1}{4}{2}{Design Review}
+
+  % Engineering Team - Lane 0 (Frontend)
+  \multiroadmaptask[blue]{2}{0}{2}{3}{Frontend Dev}
+  \multiroadmaptask[green]{2}{0}{5}{3}{Frontend Testing}
+
+  % Engineering Team - Lane 1 (Backend)
+  \multiroadmaptask[teal]{2}{1}{1}{4}{Backend API}
+  \multiroadmaptask[blue]{2}{1}{5}{3}{Integration}
+
+  % Engineering Team - Lane 2 (Infrastructure)
+  \multiroadmaptask[orange]{2}{2}{3}{2}{Database Schema}
+  \multiroadmaptask[red]{2}{2}{5}{3}{Performance Tuning}
+
+  % QA Team - single lane
+  \roadmaptask[gray]{3}{6}{2}{Testing \& Release}
+\end{roadmap}
+
+\subsection{Complex Multi-Lane Example}
+
+A more complex scenario with mixed single and multi-lane teams working on a product launch:
+
+\begin{roadmap}[width=18cm, row height=0.9cm, columns=12]
+  \multiroadmaprow{2}{Product Team}
+  \multiroadmaprow{4}{Development}
+  \roadmaprow{Marketing}
+  \roadmaprow{Sales}
+
+  \roadmaptimeline{"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"}
+
+  % Product Team - 2 lanes
+  \multiroadmaptask[purple]{1}{0}{1}{4}{Feature Specs}
+  \multiroadmaptask[orange]{1}{0}{5}{3}{User Research}
+  \multiroadmaptask[blue]{1}{1}{2}{5}{Roadmap Planning}
+  \multiroadmaptask[teal]{1}{1}{7}{4}{Metrics Analysis}
+
+  % Development - 4 concurrent streams
+  \multiroadmaptask[blue]{2}{0}{2}{3}{Web App}
+  \multiroadmaptask[green]{2}{0}{6}{2}{Web Polish}
+
+  \multiroadmaptask[teal]{2}{1}{1}{4}{API v2}
+  \multiroadmaptask[blue]{2}{1}{5}{3}{API v3}
+
+  \multiroadmaptask[orange]{2}{2}{3}{4}{iOS App}
+  \multiroadmaptask[red]{2}{2}{7}{3}{iOS Updates}
+
+  \multiroadmaptask[purple]{2}{3}{3}{4}{Android App}
+  \multiroadmaptask[green]{2}{3}{8}{3}{Android Updates}
+
+  % Marketing - single lane
+  \roadmaptask[orange]{3}{1}{3}{Pre-launch}
+  \roadmaptask[red]{3}{4}{2}{Campaign}
+  \roadmaptask[green]{3}{6}{4}{Post-launch}
+
+  % Sales - single lane
+  \roadmaptask[teal]{4}{2}{2}{Training}
+  \roadmaptask[blue]{4}{4}{3}{Outreach}
+  \roadmaptask[purple]{4}{7}{3}{Follow-up}
+\end{roadmap}
+
+\newpage
+
+\section{Custom Color Example}
+
+This example demonstrates how to customize colors by redefining the built-in color names with your own brand colors or preferred tints.
+
+\subsection{Example 1: Redefining Colors}
+
+% Redefine colors to use custom tints
+\definecolor{roadmapblue}{RGB}{0,102,204}      % Custom blue tint
+\definecolor{roadmapgreen}{RGB}{0,153,76}      % Custom green tint
+\definecolor{roadmaporange}{RGB}{255,140,0}    % Custom orange tint
+\definecolor{roadmappurple}{RGB}{102,51,153}   % Custom purple tint
+
+\begin{roadmap}[width=16cm, row height=1.3cm, columns=4]
+  \roadmaprow{Product Team}
+  \roadmaprow{Marketing Team}
+  \roadmaprow{Operations}
+
+  \roadmaptimeline{"Q1 2025","Q2 2025","Q3 2025","Q4 2025"}
+
+  \roadmaptask[blue]{1}{1}{2}{Feature Dev}
+  \roadmaptask[green]{1}{3}{1}{Release v2.0}
+  \roadmaptask[purple]{1}{4}{1}{Maintenance}
+
+  \roadmaptask[orange]{2}{1}{3}{Brand Campaign}
+  \roadmaptask[blue]{2}{4}{1}{Social Media}
+
+  \roadmaptask[green]{3}{1.5}{1.5}{Process Audit}
+  \roadmaptask[purple]{3}{3}{2}{Optimization}
+\end{roadmap}
+
+\subsection{Example 2: Pastel Theme}
+
+% Redefine with pastel colors
+\definecolor{roadmapblue}{RGB}{174,198,207}
+\definecolor{roadmapgreen}{RGB}{169,209,142}
+\definecolor{roadmaporange}{RGB}{255,179,102}
+\definecolor{roadmappurple}{RGB}{198,174,204}
+\definecolor{roadmapteal}{RGB}{169,223,191}
+
+\begin{roadmap}[width=16cm, row height=1.3cm, columns=6]
+  \roadmaprow{Design}
+  \roadmaprow{Content}
+
+  \roadmaptimeline{"Week 1","Week 2","Week 3","Week 4","Week 5","Week 6"}
+
+  \roadmaptask[blue]{1}{1}{2}{Wireframes}
+  \roadmaptask[purple]{1}{3}{2}{Mockups}
+  \roadmaptask[teal]{1}{5}{2}{Prototypes}
+
+  \roadmaptask[orange]{2}{1}{3}{Copy Writing}
+  \roadmaptask[green]{2}{4}{3}{Review \& Edit}
+\end{roadmap}
+
+\subsection{Example 3: Corporate/Professional Theme}
+
+% Redefine with darker, professional colors
+\definecolor{roadmapblue}{RGB}{0,51,102}
+\definecolor{roadmapgreen}{RGB}{0,102,68}
+\definecolor{roadmaporange}{RGB}{204,85,0}
+\definecolor{roadmapgray}{RGB}{102,102,102}
+\definecolor{roadmapteal}{RGB}{0,102,102}
+
+\begin{roadmap}[width=16cm, row height=1.2cm, columns=4]
+  \roadmaprow{Executive}
+  \roadmaprow{Finance}
+
+  \roadmaptimeline{"Q1","Q2","Q3","Q4"}
+
+  \roadmaptask[blue]{1}{1}{2}{Strategy}
+  \roadmaptask[teal]{1}{3}{2}{Implementation}
+
+  \roadmaptask[green]{2}{1}{1}{Budget}
+  \roadmaptask[orange]{2}{2}{2}{Forecast}
+  \roadmaptask[gray]{2}{4}{1}{Audit}
+\end{roadmap}
+
+\newpage
+
+
+\end{document}
