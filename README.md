@@ -537,6 +537,100 @@ You can define your own custom colors and use them in tasks by modifying the pac
 
 ![Corporate Theme Example](images/color_3.png)
 
+### Custom Fonts
+
+You can customize the fonts used in your roadmap by changing the default font family in your document preamble. The roadmap will automatically use whatever font family is active.
+
+#### Using Sans-Serif Font (Modern, Clean Look)
+
+```latex
+\documentclass{article}
+\usepackage{tikz-roadmap}
+
+% Use sans-serif font for entire document
+\renewcommand{\familydefault}{\sfdefault}
+
+\begin{document}
+% Your roadmaps will now use sans-serif font
+\end{document}
+```
+
+#### Using Specific Font Packages
+
+```latex
+\documentclass{article}
+\usepackage{tikz-roadmap}
+
+% Option 1: Helvetica (clean, professional)
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+% Option 2: Arial-like with Latin Modern Sans
+\usepackage{lmodern}
+\renewcommand{\familydefault}{\sfdefault}
+
+% Option 3: Roboto (modern, geometric)
+\usepackage[sfdefault]{roboto}
+
+% Option 4: Fira Sans (clean, humanist)
+\usepackage[sfdefault]{FiraSans}
+
+% Option 5: Montserrat (geometric, elegant)
+\usepackage[defaultfam]{montserrat}
+
+\begin{document}
+% Your roadmaps will use the selected font
+\end{document}
+```
+
+#### Font Size Adjustments
+
+The roadmap uses `\small` and `\small\bfseries` for labels and tasks. To adjust these globally:
+
+```latex
+% Make all text slightly larger
+\documentclass[12pt]{article}  % Base font size
+\usepackage{tikz-roadmap}
+
+% Or use font scaling packages
+\usepackage{anyfontsize}
+```
+
+#### Mixing Fonts (Advanced)
+
+```latex
+\documentclass{article}
+\usepackage{tikz-roadmap}
+
+% Use serif for document text
+\usepackage{times}
+
+% But use sans-serif for roadmaps
+\begin{document}
+
+Regular document text appears in serif font.
+
+{
+  % Temporarily switch to sans-serif for roadmap
+  \sffamily
+  \begin{roadmap}[width=14cm, row height=1.3cm, columns=4]
+    \roadmaprow{Team A}
+    \roadmaptimeline{"Q1","Q2","Q3","Q4"}
+    \roadmaptask[blue]{1}{1}{2}{Project X}
+  \end{roadmap}
+}
+
+Back to regular serif font for document text.
+
+\end{document}
+```
+
+**Best Practices:**
+- Sans-serif fonts (like Helvetica, Roboto, Fira Sans) work best for roadmaps due to better readability at small sizes
+- Set the font family before the roadmap environment begins
+- Ensure the chosen font supports bold weights, as task titles use bold text
+- Test your font choice with a compiled PDF to ensure proper rendering
+
 ## Compilation
 
 Compile your document with `pdflatex`:
