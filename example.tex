@@ -171,7 +171,66 @@ A more complex scenario with mixed single and multi-lane teams working on a prod
   \roadmaptask[purple]{4}{7}{3}{Follow-up}
 \end{roadmap}
 
+
 \newpage
+
+\section{Milestones Example}
+
+This example demonstrates how to add milestones to your roadmap. Milestones are visual markers (circles, squares, triangles, or stars) that highlight important events or deadlines.
+
+\begin{roadmap}[width=18cm, row height=1.5cm, columns=12]
+  \roadmaprow{Product Development}
+  \roadmaprow{Marketing}
+  \roadmaprow{Sales}
+
+  \roadmaptimeline{"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"}
+
+  % Product tasks
+  \roadmaptask[blue]{1}{1}{3}{Planning \& Design}
+  \roadmaptask[green]{1}{4}{5}{Development}
+  \roadmaptask[orange]{1}{9}{3}{Testing}
+
+  % Marketing tasks
+  \roadmaptask[purple]{2}{2}{4}{Content Creation}
+  \roadmaptask[teal]{2}{6}{4}{Campaign}
+
+  % Sales tasks
+  \roadmaptask[gray]{3}{7}{5}{Sales Push}
+
+  % Add milestones (with label position: below or right)
+  \roadmapmilestone[teal]{1}{4}{circle}{v1.0 Kickoff}{below}
+  \roadmapmilestone[orange]{1}{9}{square}{Beta Release}{below}
+  \roadmapmilestone[red]{1}{12}{star}{Launch}{below}
+  \roadmapmilestone[purple]{2}{6}{diamond}{Campaign Start}{below}
+  \roadmapmilestone[blue]{3}{7}{triangle}{Q3 Begin}{below}
+\end{roadmap}
+
+\subsection{Multi-Lane with Milestones}
+
+You can also add milestones to multi-lane rows:
+
+\begin{roadmap}[width=18cm, row height=1cm, columns=8]
+  \multiroadmaprow{3}{Engineering}
+  \roadmaprow{QA}
+
+  \roadmaptimeline{"Week 1","Week 2","Week 3","Week 4","Week 5","Week 6","Week 7","Week 8"}
+
+  % Engineering - Lane 0
+  \multiroadmaptask[blue]{1}{0}{1}{3}{Feature A}
+  \multiroadmaptask[green]{1}{0}{4}{2}{Feature B}
+
+  % Engineering - Lane 1
+  \multiroadmaptask[teal]{1}{1}{2}{4}{Backend API}
+
+  % QA
+  \roadmaptask[gray]{2}{6}{2}{Testing}
+
+  % Milestones on different lanes (with label positions)
+  \multiroadmapmilestone[green]{1}{2}{4}{diamond}{A Complete}{right}
+  \multiroadmapmilestone[red]{1}{1}{6}{star}{API v2}{right}
+  \roadmapmilestone[red]{2}{8}{circle}{Ship}{right}
+\end{roadmap}
+
 
 \section{Custom Color Example}
 
@@ -248,8 +307,6 @@ This example demonstrates how to customize colors by redefining the built-in col
   \roadmaptask[orange]{2}{2}{2}{Forecast}
   \roadmaptask[gray]{2}{4}{1}{Audit}
 \end{roadmap}
-
-\newpage
 
 
 \end{document}

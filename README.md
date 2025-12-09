@@ -4,11 +4,15 @@ A LaTeX package for creating professional team roadmaps and project timelines us
 
 ![Multi-Lane Roadmap Example](images/multi_2.png)
 
+![Milestones Example](images/milestones_2.png)
+
 ## Features
 
 - **Flexible Layout**: Adjustable width, row heights, and timeline customization
 - **Multiple Teams/Projects**: Support for unlimited team or project rows
+- **Multi-Lane Support**: Teams can work on multiple concurrent tasks with parallel lanes
 - **Resizable Task Boxes**: Tasks can span any number of time periods with adjustable duration
+- **Milestones**: Visual markers (diamonds, circles, squares, triangles, stars) to highlight key events
 - **Color-Coded Tasks**: Built-in color scheme with 7 predefined colors
 - **Professional Appearance**: Modern design with rounded corners and drop shadows
 - **Easy to Use**: Simple, intuitive syntax for defining roadmaps
@@ -191,6 +195,86 @@ Adds a task to a specific lane within a multi-lane row.
 - You can mix regular `\roadmaprow` and `\multiroadmaprow` in the same roadmap
 - Regular tasks on multi-lane rows use `\roadmaptask` and default to lane 0
 
+### Milestones
+
+Milestones are visual markers that highlight important events, deadlines, or deliverables on your roadmap.
+
+#### `\roadmapmilestone[color]{row}{position}{shape}{label}{labelpos}`
+
+Adds a milestone marker to a single-lane row.
+
+**Parameters:**
+- `color` (optional): Color name (blue, green, orange, purple, red, teal, gray). Default: blue
+- `row`: Row number (1-indexed)
+- `position`: Column position where the milestone appears (1-indexed, can be fractional)
+- `shape`: Shape of the milestone marker (`circle`, `square`, `triangle`, `diamond`, or `star`)
+- `label`: Text displayed near the milestone (can be empty: `{}`)
+- `labelpos`: Label position - `below` or `right`
+
+**Example:**
+```latex
+\begin{roadmap}[width=16cm, row height=1.5cm, columns=12]
+  \roadmaprow{Product Development}
+  \roadmaprow{Marketing}
+
+  \roadmaptimeline{"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"}
+
+  \roadmaptask[blue]{1}{1}{5}{Development Phase}
+  \roadmaptask[green]{1}{6}{3}{Testing}
+
+  % Add milestones with different label positions
+  \roadmapmilestone[green]{1}{6}{circle}{v1.0 Beta}{below}
+  \roadmapmilestone[red]{1}{9}{star}{Launch}{right}
+  \roadmapmilestone[orange]{2}{3}{diamond}{Campaign Start}{below}
+\end{roadmap}
+```
+
+#### `\multiroadmapmilestone[color]{row}{lane}{position}{shape}{label}{labelpos}`
+
+Adds a milestone marker to a specific lane within a multi-lane row.
+
+**Parameters:**
+- `color` (optional): Color name. Default: blue
+- `row`: Row number (1-indexed)
+- `lane`: Lane number within the row (0-indexed, from 0 to N-1)
+- `position`: Column position (1-indexed, can be fractional)
+- `shape`: Shape (`circle`, `square`, `triangle`, `diamond`, or `star`)
+- `label`: Text label (can be empty)
+- `labelpos`: Label position - `below` or `right`
+
+**Example:**
+```latex
+\begin{roadmap}[width=16cm, row height=1cm, columns=8]
+  \multiroadmaprow{2}{Engineering}
+
+  \roadmaptimeline{"W1","W2","W3","W4","W5","W6","W7","W8"}
+
+  \multiroadmaptask[blue]{1}{0}{1}{3}{Frontend}
+  \multiroadmaptask[teal]{1}{1}{2}{4}{Backend}
+
+  % Milestones on different lanes with label positions
+  \multiroadmapmilestone[green]{1}{0}{4}{circle}{UI Done}{below}
+  \multiroadmapmilestone[purple]{1}{1}{6}{star}{API v2}{right}
+\end{roadmap}
+```
+
+**Milestone Shapes:**
+- `circle`: Round marker, good for general milestones
+- `square`: Square marker, good for deliverables
+- `triangle`: Triangular marker, good for decision points
+- `diamond`: Diamond marker, good for critical decisions or checkpoints
+- `star`: Star marker, good for major releases or achievements
+
+**Label Positioning:**
+- `below`: Label appears below the milestone (good for vertical space)
+- `right`: Label appears to the right of the milestone (good for horizontal space)
+
+**Notes:**
+- Milestones are drawn on top of tasks
+- Use empty label `{}` if you don't want any text
+- Milestone colors follow the same color scheme as tasks
+- Choose label position based on available space in your roadmap
+
 ### Available Colors
 
 - `blue` (default): ![#3498db](https://placehold.co/15x15/3498db/3498db.png) roadmapblue
@@ -304,6 +388,39 @@ Adds a task to a specific lane within a multi-lane row.
 ```
 
 ![Sprint Planning Example](images/example_3.png)
+
+### Roadmap with Milestones
+
+```latex
+\begin{roadmap}[width=18cm, row height=1.5cm, columns=12]
+  \roadmaprow{Product Development}
+  \roadmaprow{Marketing}
+  \roadmaprow{Sales}
+
+  \roadmaptimeline{"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"}
+
+  % Product tasks
+  \roadmaptask[blue]{1}{1}{3}{Planning \& Design}
+  \roadmaptask[green]{1}{4}{5}{Development}
+  \roadmaptask[orange]{1}{9}{3}{Testing}
+
+  % Marketing tasks
+  \roadmaptask[purple]{2}{2}{4}{Content Creation}
+  \roadmaptask[teal]{2}{6}{4}{Campaign}
+
+  % Sales tasks
+  \roadmaptask[gray]{3}{7}{5}{Sales Push}
+
+  % Add milestones (with label position: below or right)
+  \roadmapmilestone[teal]{1}{4}{circle}{v1.0 Kickoff}{below}
+  \roadmapmilestone[orange]{1}{9}{square}{Beta Release}{below}
+  \roadmapmilestone[red]{1}{12}{star}{Launch}{below}
+  \roadmapmilestone[purple]{2}{6}{diamond}{Campaign Start}{below}
+  \roadmapmilestone[blue]{3}{7}{triangle}{Q3 Begin}{below}
+\end{roadmap}
+```
+
+![Milestones Example](images/milestones_1.png)
 
 ## Tips and Best Practices
 

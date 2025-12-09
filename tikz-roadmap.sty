@@ -13,7 +13,7 @@
 \RequirePackage{pgfkeys}
 \RequirePackage{etoolbox}
 
-\usetikzlibrary{positioning,calc,shapes.geometric,shadows}
+\usetikzlibrary{positioning,calc,shapes.geometric,shapes.symbols,shadows}
 
 % Define color scheme
 \definecolor{roadmapblue}{RGB}{52,152,219}
@@ -33,6 +33,7 @@
 \newcounter{roadmap@cols}
 \newcounter{roadmap@currentrow}
 \newcounter{roadmap@currenttask}
+\newcounter{roadmap@currentmilestone}
 
 \setlength{\roadmap@width}{15cm}
 \setlength{\roadmap@rowheight}{1.2cm}
@@ -63,6 +64,7 @@
   \pgfkeys{/roadmap, default, #1}%
   \setcounter{roadmap@currentrow}{0}%
   \setcounter{roadmap@currenttask}{0}%
+  \setcounter{roadmap@currentmilestone}{0}%
   \roadmap@tasks={}%
   \def\roadmap@teamlabels{}%
   \def\roadmap@timelinelabels{}%
@@ -115,6 +117,35 @@
   \gdef\roadmap@timelinelabels{#1}%
 }
 
+% Add a milestone to the roadmap
+% Usage: \roadmapmilestone[options]{row}{position}{shape}{label}{labelpos}
+% shapes: circle, square, triangle, star, diamond
+% labelpos: below (default), right
+\newcommand{\roadmapmilestone}[6][]{%
+  \stepcounter{roadmap@currentmilestone}%
+  \expandafter\gdef\csname roadmap@milestone@\the\value{roadmap@currentmilestone}@row\endcsname{#2}%
+  \expandafter\gdef\csname roadmap@milestone@\the\value{roadmap@currentmilestone}@position\endcsname{#3}%
+  \expandafter\gdef\csname roadmap@milestone@\the\value{roadmap@currentmilestone}@shape\endcsname{#4}%
+  \expandafter\gdef\csname roadmap@milestone@\the\value{roadmap@currentmilestone}@label\endcsname{#5}%
+  \expandafter\gdef\csname roadmap@milestone@\the\value{roadmap@currentmilestone}@labelpos\endcsname{#6}%
+  \expandafter\gdef\csname roadmap@milestone@\the\value{roadmap@currentmilestone}@options\endcsname{#1}%
+  \expandafter\gdef\csname roadmap@milestone@\the\value{roadmap@currentmilestone}@lane\endcsname{0}% Default: lane 0
+}
+
+% Add a milestone to a multi-lane row
+% Usage: \multiroadmapmilestone[options]{row}{lane}{position}{shape}{label}{labelpos}
+% labelpos: below (default), right
+\newcommand{\multiroadmapmilestone}[7][]{%
+  \stepcounter{roadmap@currentmilestone}%
+  \expandafter\gdef\csname roadmap@milestone@\the\value{roadmap@currentmilestone}@row\endcsname{#2}%
+  \expandafter\gdef\csname roadmap@milestone@\the\value{roadmap@currentmilestone}@position\endcsname{#4}%
+  \expandafter\gdef\csname roadmap@milestone@\the\value{roadmap@currentmilestone}@shape\endcsname{#5}%
+  \expandafter\gdef\csname roadmap@milestone@\the\value{roadmap@currentmilestone}@label\endcsname{#6}%
+  \expandafter\gdef\csname roadmap@milestone@\the\value{roadmap@currentmilestone}@labelpos\endcsname{#7}%
+  \expandafter\gdef\csname roadmap@milestone@\the\value{roadmap@currentmilestone}@options\endcsname{#1}%
+  \expandafter\gdef\csname roadmap@milestone@\the\value{roadmap@currentmilestone}@lane\endcsname{#3}% Store lane number
+}
+
 % Internal drawing command
 \newcommand{\roadmap@draw}{%
   \begin{tikzpicture}[
@@ -127,6 +158,13 @@
       font=\small\bfseries,
       drop shadow={opacity=0.3,shadow xshift=1pt,shadow yshift=-1pt},
       align=center
+    },
+    milestone/.style={
+      minimum size=8pt,
+      fill=white,
+      draw=black,
+      line width=1.5pt,
+      drop shadow={opacity=0.2,shadow xshift=0.5pt,shadow yshift=-0.5pt}
     }
   ]
 
@@ -234,6 +272,71 @@
     \node[task, fill=\taskcolor, minimum width=\taskwidth pt-4pt]
       at (\xstart pt + \taskwidth pt/2, \ypos pt) {\tasktitle};
   }
+
+  % Draw milestones
+  \ifnum\value{roadmap@currentmilestone}>0
+  \foreach \milestonenum in {1,...,\value{roadmap@currentmilestone}} {
+    \pgfmathsetmacro{\milestonerow}{\csname roadmap@milestone@\milestonenum @row\endcsname}
+    \pgfmathsetmacro{\milestonelane}{\csname roadmap@milestone@\milestonenum @lane\endcsname}
+    \pgfmathsetmacro{\milestonepos}{\csname roadmap@milestone@\milestonenum @position\endcsname}
+    \edef\milestoneshape{\csname roadmap@milestone@\milestonenum @shape\endcsname}
+    \edef\milestonelabel{\csname roadmap@milestone@\milestonenum @label\endcsname}
+    \edef\milestonelabelpos{\csname roadmap@milestone@\milestonenum @labelpos\endcsname}
+    \edef\milestoneoptions{\csname roadmap@milestone@\milestonenum @options\endcsname}
+
+    % Get pre-calculated cumulative height for this row
+    \pgfmathtruncatemacro{\milestonerowint}{\milestonerow}
+    \edef\milestonecumheightstr{\csname roadmap@rowcumheight@\milestonerowint\endcsname}
+
+    % Calculate Y position: cumulative height + lane offset + half lane height
+    \pgfmathsetmacro{\mypos}{-\milestonecumheightstr - \milestonelane*\roadmaprowheightpt - 0.5*\roadmaprowheightpt}
+    \pgfmathsetmacro{\mxpos}{\labelwidth + (\milestonepos-1)*\colwidthchart}
+
+    % Determine color based on options
+    \def\milestonecolor{roadmapblue}
+    \ifdefstring{\milestoneoptions}{green}{\def\milestonecolor{roadmapgreen}}{}
+    \ifdefstring{\milestoneoptions}{orange}{\def\milestonecolor{roadmaporange}}{}
+    \ifdefstring{\milestoneoptions}{purple}{\def\milestonecolor{roadmappurple}}{}
+    \ifdefstring{\milestoneoptions}{red}{\def\milestonecolor{roadmapred}}{}
+    \ifdefstring{\milestoneoptions}{teal}{\def\milestonecolor{roadmapteal}}{}
+    \ifdefstring{\milestoneoptions}{gray}{\def\milestonecolor{roadmapgray}}{}
+    \ifdefstring{\milestoneoptions}{blue}{\def\milestonecolor{roadmapblue}}{}
+
+    % Draw milestone shape
+    \ifdefstring{\milestoneshape}{circle}{
+      \node[milestone, circle, draw=\milestonecolor, fill=\milestonecolor!20]
+        at (\mxpos pt, \mypos pt) {};
+    }{}
+    \ifdefstring{\milestoneshape}{square}{
+      \node[milestone, rectangle, draw=\milestonecolor, fill=\milestonecolor!20]
+        at (\mxpos pt, \mypos pt) {};
+    }{}
+    \ifdefstring{\milestoneshape}{triangle}{
+      \node[milestone, regular polygon, regular polygon sides=3, inner sep=0.08cm, draw=\milestonecolor, fill=\milestonecolor!20]
+        at (\mxpos pt, \mypos pt) {};
+    }{}
+    \ifdefstring{\milestoneshape}{star}{
+      \node[milestone, star, star points=5, draw=\milestonecolor, fill=\milestonecolor!20, inner sep=0.08cm]
+        at (\mxpos pt, \mypos pt) {};
+    }{}
+    \ifdefstring{\milestoneshape}{diamond}{
+      \node[milestone, diamond, draw=\milestonecolor, fill=\milestonecolor!20, inner sep=0.1cm]
+        at (\mxpos pt, \mypos pt) {};
+    }{}
+
+    % Draw label if not empty
+    \ifdefempty{\milestonelabel}{}{
+      \ifdefstring{\milestonelabelpos}{right}{
+        \node[font=\small, text=roadmapdarkgray, anchor=west]
+          at (\mxpos pt + 6pt, \mypos pt) {\milestonelabel};
+      }{
+        % Default: below
+        \node[font=\small, text=roadmapdarkgray, anchor=north]
+          at (\mxpos pt, \mypos pt - 0.2*\roadmaprowheightpt) {\milestonelabel};
+      }
+    }
+  }
+  \fi
 
   % Draw timeline at bottom (use globally stored total height)
   \pgfmathsetmacro{\timeliney}{-\roadmapfinaltotalheight - 0.3*\roadmaptimelineheightpt}
