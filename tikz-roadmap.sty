@@ -327,12 +327,12 @@
     % Draw label if not empty
     \ifdefempty{\milestonelabel}{}{
       \ifdefstring{\milestonelabelpos}{right}{
-        \node[font=\small, text=roadmapdarkgray, anchor=west]
-          at (\mxpos pt + 6pt, \mypos pt) {\milestonelabel};
+        \node[font=\small, text=roadmapdarkgray, anchor=base west, text depth=0.5ex, text height=1.5ex]
+          at (\mxpos pt + 6pt, \mypos pt - 0.75ex) {\milestonelabel};
       }{
         % Default: below
-        \node[font=\small, text=roadmapdarkgray, anchor=north]
-          at (\mxpos pt, \mypos pt - 0.2*\roadmaprowheightpt) {\milestonelabel};
+        \node[font=\small, text=roadmapdarkgray, anchor=north, text depth=0.5ex, text height=1.5ex]
+          at (\mxpos pt, \mypos pt - 0.21*\roadmaprowheightpt) {\milestonelabel};
       }
     }
   }
@@ -351,7 +351,7 @@
     \pgfmathsetmacro{\labelindex}{\col-1}
 
     % Get the label for this column
-    \node[font=\small, text=roadmapdarkgray] at (\xpos pt, \timeliney pt) {
+    \node[font=\small, text=roadmapdarkgray, anchor=base, text depth=0.5ex, text height=1.5ex] at (\xpos pt, \timeliney - 0.30 * \roadmaptimelineheightpt) {
       \pgfmathparse{{\roadmap@timelinelabels}[\labelindex]}
       \pgfmathresult
     };
